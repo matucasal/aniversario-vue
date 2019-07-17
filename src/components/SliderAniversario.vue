@@ -1,27 +1,20 @@
 <template>
-  <div id="slider" class="slider" @mouseMove="mouseMoving">
-                <div class="slider-cards" :style="`transform: translate3d(${cardsX}px,0,0)`">
-                        <div 
-                        v-for="(slide, index) in slides" 
-                        :key="index"
-                        class="slider-card" 
-                        >
-                            <div 
-                            v-touch:swipe="swipeMethod(slide.card)"
-                            
-
-                            ref=" {{ slide.card }} "
-                            >   
-                                <img :src="slide.image" :alt="slide.title" draggable="false">
-                            </div>
-                        </div>
-                </div>
-                <div class="slider-info">
-                    <h1>{{selectedSlide.title}}</h1>
-                    <p>{{selectedSlide.description}}</p>
-                    <button class="slider-button">BOOK</button>
-                </div>
-            </div>
+<div id="slider" class="slider" >
+  <div class="slider-cards" :style="`transform: translate3d(${cardsX}px,0,0)`">
+    <div v-touch:swipe.left="swipeLeftTouch"
+         v-touch:swipe.right="swipeRightTouch"
+         v-for="(slide, index) in slides" 
+         :key="index"
+         class="slider-card">
+      <img :src="slide.image" :alt="slide.title" draggable="false">
+    </div>
+  </div>
+  <div class="slider-info">
+    <h1>{{selectedSlide.title}}</h1>
+    <p>{{selectedSlide.description}}</p>
+    <!-- <button class="slider-button">BOOK</button> -->
+  </div>
+</div>
 </template>
 
 <script>
@@ -29,121 +22,76 @@ import {TweenLite} from "gsap/TweenLite";
 
 export default {
   
-
-  name: 'SliderAniversario',
-
   data() {
     return {
         slides: [
-        {
-            card: 'card1',
-            title: 'Ready Player One',
-            description: 'When the creator of a popular video game system dies, a virtual contest is created to compete for his fortune.',
-            image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/pU1ULUq8D3iRxl1fdX2lZIzdHuI.jpg'
-        },
-        {
-            card: 'card2',
-            title: 'Avengers: Infinity War',
-            description: 'As the Avengers and their allies have continued to protect the world from threats too large for any...',
-            image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg'
-        },
-        {
-            card: 'card3',
-            title: 'Coco',
-            description: 'Despite his family’s baffling generations-old ban on music, Miguel dreams of becoming an accomplished musician...',
-            image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg'
-        }
-        ]
-        ,selectedIndex: 0
-        ,dragging: false,
-        initialMouseX: 0,
-        initialCardsX: 0,
-        cardsX: 0,
-        actualCard: 1
+      {
+        title: 'Ready Player One',
+        description: 'When the creator of a popular video game system dies, a virtual contest is created to compete for his fortune.',
+        image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/pU1ULUq8D3iRxl1fdX2lZIzdHuI.jpg'
+      },
+      {
+        title: 'Avengers: Infinity War',
+        description: 'As the Avengers and their allies have continued to protect the world from threats too large for any...',
+        image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/7WsyChQLEftFiDOVTGkv3hFpyyt.jpg'
+      },
+      {
+        title: 'Coco',
+        description: 'Despite his family’s baffling generations-old ban on music, Miguel dreams of becoming an accomplished musician...',
+        image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg'
+      },
+      {
+        title: 'Coco2',
+        description: 'Despite his family’s baffling generations-old ban on music, Miguel dreams of becoming an accomplished musician...',
+        image: 'https://image.tmdb.org/t/p/w300_and_h450_bestv2/eKi8dIrr8voobbaGzDpe8w0PVbC.jpg'
+      }
+    ],
+    selectedIndex: 0,
+    dragging: false,
+    initialMouseX: 0,
+    initialCardsX: 0,
+    cardsX: 0,
+    widthToMoveCards: 300
+    
+  }},
+  computed: {
+    selectedSlide () {
+        return this.slides[this.selectedIndex]
     }
   },
-
-  computed: {
-        selectedSlide () {
-            return this.slides[this.selectedIndex]
-        }
-    }
-    ,
-    methods: {
+  methods: {
+    
+    swipeRightTouch (){
+        //Lo hago con nuevo metodo 
+        //freno el dragging
+        this.dragging = false
+        //Aca fuerzo que siempre vaya a la izquierda
         
-        swipeMethod (card){
-            return function(direction, event) {
-                console.log(direction, card);
-                const { box } = this.$refs
-                if (direction == "right"){
-                  TweenLite.Fromto(card, 0.3, {x: 290})
-                }
-            // do something ~
-            }
-        },
-
-        leftSwipe(e){
-            
-            console.log(e)
-            console.log("estoy en el left")
-
-            this.dragging = false
-
-            const cardWidth = 290
-            const nearestSlide = -Math.round(this.cardsX / cardWidth)
-            this.selectedIndex = Math.min(Math.max(0, nearestSlide), this.slides.length -1)
-
-            TweenLite.to(this, 0.3, -cardWidth)
-        },
-
-        rightSwipe(e){
-
-          console.log(this.$refs)
-
-            console.log(e)
-            console.log("estoy en el right")
-
-
-            this.dragging = true
-            this.initialCardsX = this.cardsX
-
-
-            //this.dragging = false
-
-            const cardWidth = 290
-            const nearestSlide = -Math.round(this.cardsX / cardWidth)
-            this.selectedIndex = Math.min(Math.max(0, nearestSlide), this.slides.length -1)
-
-            TweenLite.to(this, 0.3, { x: 290 })
-        },
-      
-
-        //TweenLite.to(this, 0.3, {cardsX: -this.selectedIndex * cardWidth})
-
-        startDrag (e) {
-            
-            
-            this.dragging = true
-            this.initialMouseX = e.pageX
-            this.initialCardsX = this.cardsX
-        },
-        stopDrag () {
-            this.dragging = false
-
-            const cardWidth = 290
-            const nearestSlide = -Math.round(this.cardsX / cardWidth)
-            this.selectedIndex = Math.min(Math.max(0, nearestSlide), this.slides.length -1)
-
-            TweenLite.to(this, 0.3, {cardsX: -this.selectedIndex * cardWidth})
-        },
-        mouseMoving (e) {
-            if(this.dragging) {
-                const dragAmount = e.pageX - this.initialMouseX
-                const targetX = this.initialCardsX + dragAmount
-                this.cardsX = targetX
-            }
+        const destino = this.selectedIndex - 1
+        if (destino > -1 ){
+            const cardWidth = -this.widthToMoveCards * destino
+            //Aca hago la animacion
+            TweenLite.to(this, 0.3, {cardsX: cardWidth})
+            //Le doy el nuevo indice
+            this.selectedIndex = this.selectedIndex  - 1
+        }
+    },
+    swipeLeftTouch (){
+        //Lo hago con nuevo metodo 
+        //freno el dragging
+        this.dragging = false
+        //Aca fuerzo que siempre vaya a la derecha
+        const destino = this.selectedIndex + 1
+        if (destino <= this.slides.length - 1 ){
+            const cardWidth = -this.widthToMoveCards * destino
+            //Aca hago la animacion
+            TweenLite.to(this, 0.3, {cardsX: cardWidth})
+            //Le doy el nuevo indice
+            this.selectedIndex = this.selectedIndex  + 1
         }
     }
+
+  }
 }
 </script>
 
@@ -158,7 +106,7 @@ height: 640px;
 
 .slider-cards {
 position: relative;
-width: 900px;
+width: 1200px;
 margin: 20px 50px;  
 z-index: 1;
 }
@@ -169,7 +117,7 @@ background-color: grey;
 overflow: hidden;
 width: 260px;
 height: 360px;
-margin-right: 30px;
+margin-right: 40px;
 border-radius: 12px;
 box-shadow:0px 60px 20px -20px rgba(0, 0, 0, 0.3)
 }
